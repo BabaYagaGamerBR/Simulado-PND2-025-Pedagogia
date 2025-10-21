@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulado PND 2025 - Pedagogia</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: #f4f6f9; color: #333; padding: 20px; line-height: 1.6; }
+    .container { max-width: 900px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    header { background: #1a5276; color: white; padding: 20px; text-align: center; }
+    h1 { font-size: 1.8rem; }
+    .progress { height: 8px; background: #ddd; margin: 15px 20px; border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #27ae60; width: 0%; transition: width 0.4s; }
+    .question-container { padding: 30px; }
+    .question-number { font-weight: bold; color: #1a5276; font-size: 1.1rem; margin-bottom: 10px; }
+    .question-text { font-size: 1.15rem; margin-bottom: 20px; }
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option { padding: 14px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+    .option:hover { background: #e3f2fd; border-color: #1a5276; }
+    .option.selected { background: #bbdefb; border-color: #1a5276; }
+    .option.correct { background: #d5efdb; border-color: #27ae60; }
+    .option.wrong { background: #fadbd8; border-color: #e74c3c; }
+    .feedback { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+    .feedback.show { display: block; animation: fadeIn 0.5s; }
+    .feedback.correct { background: #d5efdb; border-left: 5px solid #27ae60; }
+    .feedback.wrong { background: #fadbd8; border-left: 5px solid #e74c3c; }
+    .btn { margin-top: 20px; padding: 12px 24px; background: #1a5276; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+    .btn:hover { background: #154360; }
+    .btn:disabled { background: #95a5a6; cursor: not-allowed; }
+    .result { text-align: center; padding: 30px; display: none; }
+    .result.show { display: block; }
+    .score { font-size: 2rem; font-weight: bold; color: #1a5276; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 600px) { .question-container { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Simulado PND 2025 - Pedagogia</h1>
+      <p>30 Formação Geral + 70 Específico | Feedback Imediato</p>
+    </header>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="question-container" id="questionContainer"></div>
+    <div class="result" id="resultScreen">
+      <h2>Parabéns! Você terminou!</h2>
+      <p class="score" id="finalScore"></p>
+      <button class="btn" onclick="location.reload()">Refazer Simulado</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+  // ====================== FORMAÇÃO GERAL DOCENTE (30) ======================
+  { theme: "Filosofia da educação", text: "Sobre Sócrates, Locke e Freire, quais afirmativas estão corretas?<br>I – Sócrates defendia o diálogo como método.<br>II – Locke via a mente como tabula rasa.<br>III – Freire propôs educação bancária.", options: ["Apenas I", "I e II", "II e III", "Apenas III", "Todas"], answer: 1, comment: "Sócrates (diálogo), Locke (tabula rasa) e Freire (crítico à educação bancária). III inverte Freire. Diálogo é central na prática democrática." },
+  { theme: "Reformas educacionais", text: "A Lei de 15 de outubro de 1827 no Brasil criou escolas de primeiras letras, mas:", options: ["Garantiu inclusão total", "Excluiu mulheres, pobres e negros na prática", "Foi inspirada em Dewey", "Tornou o ensino obrigatório", "Criou o Kindergarten"], answer: 1, comment: "A lei foi excludente na prática, mantendo desigualdades. Reflete o desafio histórico da equidade, tema recorrente na PND e BNCC." },
+  { theme: "Bourdieu", text: "A violência simbólica ocorre quando:", options: ["A escola pune fisicamente", "Valoriza cultura dominante como universal", "Garante igualdade formal", "Ensina apenas pobres", "Rejeita capital cultural"], answer: 1, comment: "Bourdieu: escola legitima desigualdades ao impor cultura das elites. Combater isso exige práticas inclusivas e valorização da diversidade." },
+  { theme: "Psicologia da educação", text: "Segundo Piaget, o egocentrismo é característico do estágio:", options: ["Sensório-motor", "Pré-operatório", "Operatório concreto", "Operatório formal", "Todas as fases"], answer: 1, comment: "Egocentrismo marca o pré-operatório (2-7 anos). No concreto, há descentração. Ajuda a adaptar atividades à fase cognitiva." },
+  { theme: "Revoluções educacionais", text: "A quarta revolução educacional (Rorty e Davidson) enfatiza:", options: ["Método lancasteriano", "Narrativas pessoais e redescrição", "Educação bancária", "Ensino por competências", "Memorização"], answer: 1, comment: "Rorty: aprendizado via narrativas e diálogo. Contrasta com educação tradicional, alinhando-se à BNCC e DCN." },
+  { theme: "Didática contemporânea", text: "A charge que mostra professor ditando e aluno copiando critica:", options: ["Metodologias ativas", "Educação bancária (Freire)", "Uso de TICs", "Avaliação formativa", "Planejamento participativo"], answer: 1, comment: "Educação bancária trata aluno como depósito. Práticas ativas rompem com isso, promovendo autonomia." },
+  { theme: "LDB 9394/96", text: "A LDB estabelece que a educação básica tem por finalidade:", options: ["Formar para o mercado", "Desenvolver o educando, assegurar formação comum e respeito à diversidade", "Priorizar ensino religioso", "Garantir vestibular", "Focar apenas no cognitivo"], answer: 1, comment: "Art. 2º LDB: formação integral, cidadania e diversidade. Base para inclusão e equidade." },
+  { theme: "BNCC", text: "A BNCC organiza o currículo em:", options: ["Disciplinas isoladas", "Campos de experiência (EI) e áreas do conhecimento (EF)", "Somente conteúdos", "Avaliação externa", "Ensino técnico"], answer: 1, comment: "EI: 5 campos; EF: 9 áreas. Estrutura interdisciplinar e competências gerais." },
+  { theme: "PNE 2014-2024", text: "Meta 1 do PNE visa universalizar até 2016 a educação infantil para crianças de:", options: ["4 a 5 anos", "0 a 3 anos", "6 a 14 anos", "15 a 17 anos", "Todas"], answer: 0, comment: "Meta 1: 4 a 5 anos até 2016. Reflete prioridade na primeira infância." },
+  { theme: "Inclusão", text: "O AEE (Atendimento Educacional Especializado) é:", options: ["Obrigatório para todos", "Complementar ou suplementar à escolarização", "Substitutivo à escola comum", "Exclusivo para deficientes", "Facultativo"], answer: 1, comment: "Decreto 7611/2011: AEE complementa, nunca substitui. Garante inclusão com equidade." },
+  { theme: "Gestão democrática", text: "A gestão democrática do ensino público inclui:", options: ["Diretor vitalício", "Participação da comunidade e colegiado escolar", "Decisão apenas do MEC", "Somente professores", "Conselho tutelar"], answer: 1, comment: "Art. 14 LDB: participação da comunidade. Essencial para PPP e autonomia." },
+  { theme: "Avaliação", text: "A avaliação formativa tem como objetivo:", options: ["Classificar alunos", "Diagnosticar e ajustar o ensino", "Provar superioridade", "Eliminar reprovação", "Somente notas"], answer: 1, comment: "Regula o processo, não apenas o resultado. Alinha com BNCC e práticas reflexivas." },
+  { theme: "Currículo", text: "O PPP (Projeto Político-Pedagógico) é:", options: ["Plano de aula", "Documento identitário da escola, construído coletivamente", "Relatório anual", "Lista de faltas", "Contrato com pais"], answer: 1, comment: "Base da gestão democrática. Reflete identidade, missão e práticas da escola." },
+  { theme: "Ética docente", text: "O professor deve respeitar a diversidade cultural, evitando:", options: ["Inclusão", "Preconceito e discriminação", "Diálogo", "Avaliação", "Planejamento"], answer: 1, comment: "Código de Ética: respeito às diferenças. Combate ao racismo, machismo, etc." },
+  { theme: "Educação infantil", text: "Na EI, o brincar é:", options: ["Perda de tempo", "Direito da criança e eixo do aprendizado", "Opcional", "Somente recreação", "Proibido"], answer: 1, comment: "BNCC EI: brincar como direito e linguagem. Central no desenvolvimento." },
+  { theme: "Formação de professores", text: "As DCN para formação de professores exigem:", options: ["Estágio de 100h", "Estágio supervisionado mínimo de 400h", "Apenas teoria", "Curso EAD total", "Sem prática"], answer: 1, comment: "Resolução CNE/CP 2/2015: estágio obrigatório. Une teoria e prática." },
+  { theme: "EJA", text: "A Educação de Jovens e Adultos deve considerar:", options: ["Mesma metodologia do regular", "Experiências prévias e contexto de vida", "Apenas alfabetização", "Ensino noturno obrigatório", "Sem avaliação"], answer: 1, comment: "Resolução CNE/CEB 6/2012: respeita saberes prévios. Pedagogia da alternância." },
+  { theme: "Educação do campo", text: "A educação do campo valoriza:", options: ["Urbanização", "Identidade rural, sustentabilidade e cultura local", "Ensino técnico", "Somente alfabetização", "Deslocamento para cidade"], answer: 1, comment: "Diretrizes Operacionais: pedagogia da alternância. Respeita ritmo agrícola." },
+  { theme: "Tecnologia na educação", text: "O uso crítico de TICs na escola exige:", options: ["Substituir o professor", "Mediação pedagógica intencional", "Acesso irrestrito", "Proibir redes sociais", "Somente jogos"], answer: 1, comment: "BNCC: competência digital com ética e criticidade. Professor como mediador." },
+  { theme: "Direitos da criança", text: "O ECA (1990) garante à criança o direito à:", options: ["Trabalho infantil", "Educação, lazer, cultura e proteção", "Voto aos 12 anos", "Casamento precoce", "Prisão"], answer: 1, comment: "Art. 16 ECA: direitos fundamentais. Base para políticas de proteção integral." },
+  { theme: "Planejamento", text: "O plano de aula deve incluir:", options: ["Apenas conteúdo", "Objetivos, metodologia, recursos e avaliação", "Somente data", "Nome do diretor", "Faltas"], answer: 1, comment: "Estrutura essencial. Garante intencionalidade pedagógica." },
+  { theme: "Interdisciplinaridade", text: "A interdisciplinaridade na BNCC ocorre por meio de:", options: ["Disciplinas isoladas", "Articulação entre áreas do conhecimento", "Somente projetos", "Prova integrada", "Ensino religioso"], answer: 1, comment: "Currículo em rede. Combate fragmentação do saber." },
+  { theme: "Educação inclusiva", text: "A Política Nacional de Educação Especial na Perspectiva Inclusiva (2008) defende:", options: ["Escolas especiais como única opção", "Educação na escola comum com AEE", "Segregação", "Ensino domiciliar", "Exclusão"], answer: 1, comment: "Inclusão como princípio. AEE complementa, não substitui." },
+  { theme: "Formação continuada", text: "A formação continuada do professor deve ser:", options: ["Opcional", "Direito e dever, com apoio da rede", "Paga pelo professor", "Somente online", "Anual"], answer: 1, comment: "LDB: direito do professor. Essencial para atualização e qualidade." },
+  { theme: "Avaliação em larga escala", text: "O SAEB avalia:", options: ["Apenas português", "Português, matemática e ciências", "Todas as disciplinas", "Comportamento", "Frequência"], answer: 1, comment: "Sistema de Avaliação da Educação Básica. Diagnostica qualidade do ensino." },
+  { theme: "PPP", text: "O PPP deve ser revisado:", options: ["A cada 10 anos", "Periodicamente, com participação coletiva", "Somente pelo diretor", "Nunca", "No fim do ano"], answer: 1, comment: "Documento vivo. Reflete mudanças e participação da comunidade." },
+  { theme: "Direitos humanos na educação", text: "Ensinar direitos humanos na escola é:", options: ["Ideologia", "Dever constitucional e da BNCC", "Opcional", "Proibido", "Somente no EM"], answer: 1, comment: "Competência 9 BNCC: empatia e cooperação. Base para cidadania." },
+  { theme: "Educação ambiental", text: "A educação ambiental deve ser:", options: ["Disciplina isolada", "Transversal, crítica e transformadora", "Somente em ciências", "Opcional", "Com punição"], answer: 1, comment: "Lei 9795/1999: transversalidade. Promove sustentabilidade." },
+  { theme: "Conselho de classe", text: "O conselho de classe tem função:", options: ["Punitiva", "Deliberativa e formativa", "Somente notas", "Exclusão", "Festas"], answer: 1, comment: "Analisa trajetórias. Decisões coletivas com foco no aluno." },
+  { theme: "Autonomia escolar", text: "A autonomia pedagógica permite à escola:", options: ["Ignorar a BNCC", "Adaptar o currículo às suas especificidades", "Cobrar mensalidade", "Excluir alunos", "Fechar aos sábados"], answer: 1, comment: "LDB: autonomia com responsabilidade. Respeita contextos locais." },
+
+  // ====================== COMPONENTE ESPECÍFICO PEDAGOGIA (70) ======================
+  { theme: "Alfabetização e letramento", text: "Qual prática articula alfabetização e letramento?", options: ["Listas de palavras isoladas", "Leitura de gêneros com produção real", "Foco só em fonemas", "Decodificação mecânica", "Literatura só após alfabetizar"], answer: 1, comment: "Letramento (Magda Soares) exige uso social da leitura/escrita. Gêneros textuais com propósito comunicativo são essenciais na EI e anos iniciais." },
+  { theme: "Tecnologias na educação", text: "As TICs transformaram a educação ao:", options: ["Eliminar o professor", "Ampliar acesso e interação com conhecimento", "Substituir livros", "Reduzir inclusão", "Tornar tudo virtual"], answer: 1, comment: "BNCC (Competência 5) exige uso crítico de tecnologias. Elas ampliam possibilidades, mas exigem mediação pedagógica intencional." },
+  { theme: "Educação infantil", text: "Na EI, o currículo organiza-se em:", options: ["Disciplinas", "Campos de experiências", "Áreas do conhecimento", "Eixos temáticos", "Conteúdos específicos"], answer: 1, comment: "BNCC EI: 5 campos (o eu, o outro, o nós, etc.). Brincar, interagir e criar são eixos." },
+  { theme: "Infância", text: "A infância é construída:", options: ["Biologicamente", "Social, histórica e culturalmente", "Apenas na escola", "Igual em todo o mundo", "Somente até 6 anos"], answer: 1, comment: "Conceito histórico (Ariès). Exige respeito às infâncias plurais." },
+  { theme: "Corpo e movimento", text: "O corpo na EI é linguagem para:", options: ["Disciplina", "Explorar, expressar e conhecer o mundo", "Competição", "Silêncio", "Imobilidade"], answer: 1, comment: "BNCC: corpo como primeira forma de interação. Ludicidade e movimento são centrais." },
+  { theme: "Letramento literário", text: "O letramento literário desenvolve:", options: ["Memorização de poemas", "Imaginação, empatia e fruição estética", "Apenas leitura silenciosa", "Concursos", "Críticas literárias"], answer: 1, comment: "Cosson: leitura como prazer e formação humana. Essencial para identidade." },
+  { theme: "Políticas de EI", text: "A Lei 12.796/2013 tornou obrigatória a EI para crianças de:", options: ["0 a 3 anos", "4 a 5 anos", "6 anos", "7 a 14 anos", "15 a 17 anos"], answer: 1, comment: "Alteração da LDB. Reforça prioridade na primeira infância." },
+  { theme: "Desenvolvimento infantil", text: "Vygotsky destaca a importância da:", options: ["Maturidade biológica", "Interação social e zona de desenvolvimento proximal", "Reforço externo", "Isolamento", "Memorização"], answer: 1, comment: "ZDP: aprendizado com mediação. Base para práticas colaborativas." },
+  { theme: "Práticas interdisciplinares", text: "A interdisciplinaridade na EI ocorre por meio de:", options: ["Aulas separadas", "Projetos que articulam campos de experiência", "Livros didáticos", "Provas", "Rankings"], answer: 1, comment: "BNCC EI: integração natural. Projetos como 'minha cidade' unem áreas." },
+  { theme: "Pedagogia como ciência", text: "A Pedagogia estuda:", options: ["Apenas a escola", "Processos educativos em diversos espaços", "Somente infância", "Gestão financeira", "Marketing"], answer: 1, comment: "Libâneo: ciência da educação. Atua em espaços formais, não formais e informais." },
+  { theme: "Espaços não escolares", text: "O pedagogo pode atuar em:", options: ["Apenas escolas", "Hospitais, empresas, ONGs, museus", "Somente creches", "Proibido fora da escola", "Apenas universidades"], answer: 1, comment: "Resolução CNE/CP 1/2006: atuação ampliada. Pedagogia hospitalar, empresarial, etc." },
+  { theme: "Dificuldades de aprendizagem", text: "Dificuldades de aprendizagem devem ser analisadas:", options: ["Como culpa do aluno", "No contexto escolar, familiar e social", "Com punição", "Ignorando", "Somente com remédio"], answer: 1, comment: "Abordagem ecológica. Não é déficit isolado, mas interação." },
+  { theme: "Práticas na EI", text: "Na rotina da EI, é essencial:", options: ["Silêncio total", "Momentos de cuidado, brincadeira e aprendizagem", "Aulas expositivas", "Tarefas de casa", "Provas"], answer: 1, comment: "BNCC: rotina flexível, com interações ricas. Cuidado como base." },
+  { theme: "Avaliação na EI", text: "A avaliação na EI é:", options: ["Com notas", "Formativa, por observação e registro", "Classificatória", "Anual", "Com reprovação"], answer: 1, comment: "BNCC: acompanhamento do desenvolvimento. Sem aprovação/reprovação." },
+  { theme: "Gestão educacional", text: "A gestão democrática envolve:", options: ["Diretor autoritário", "Colegiado, conselho escolar e participação", "Somente pais", "MEC decide tudo", "Sem planejamento"], answer: 1, comment: "LDB e DCN: participação coletiva. PPP como instrumento." },
+  { theme: "Antropologia da educação", text: "A antropologia da educação estuda:", options: ["Apenas rituais", "Cultura escolar e processos de socialização", "Somente tribos", "Economia", "Tecnologia"], answer: 1, comment: "Analisa escola como espaço cultural. Desvela relações de poder." },
+  { theme: "Trabalho e educação", text: "A relação trabalho-educação inclui:", options: ["Trabalho infantil", "Formação para o trabalho com dignidade", "Exploração", "Somente emprego", "Desemprego"], answer: 1, comment: "PNE e BNCC: educação politécnica. Prepara para cidadania e trabalho." },
+  { theme: "Ensino de matemática", text: "Na EI, a matemática se constrói por meio de:", options: ["Cálculos complexos", "Jogos, brincadeiras e situações problemas", "Memorização de tabuadas", "Provas", "Castigo"], answer: 1, comment: "BNCC: pensamento matemático via exploração lúdica." },
+  { theme: "Ensino de língua portuguesa", text: "O ensino de LP deve priorizar:", options: ["Gramática normativa", "Leitura, escrita e oralidade em contextos reais", "Ditado diário", "Decoreba", "Silêncio"], answer: 1, comment: "BNCC: práticas de linguagem. Gêneros textuais e letramento." },
+  { theme: "Ensino de ciências", text: "Na EI, ciências se aprende por:", options: ["Livros didáticos", "Observação, experimentação e curiosidade", "Aulas teóricas", "Provas", "Memorização"], answer: 1, comment: "BNCC: investigação científica desde cedo. Perguntas e hipóteses." },
+  { theme: "Ensino de história", text: "História na EI aborda:", options: ["Datas e guerras", "Tempo, memória, identidade e cultura", "Somente Brasil", "Presidentes", "Mapas"], answer: 1, comment: "BNCC: noções de tempo (ontem, hoje) e pertencimento." },
+  { theme: "Ensino de artes", text: "Artes na EI valorizam:", options: ["Cópia de modelos", "Expressão, criação e fruição", "Concursos", "Notas", "Críticas"], answer: 1, comment: "BNCC: linguagens artísticas como forma de ser e estar no mundo." },
+  { theme: "Educação física na EI", text: "A EF na EI promove:", options: ["Competição", "Corpo, movimento, saúde e cultura", "Musculação", "Esportes profissionais", "Imobilidade"], answer: 1, comment: "BNCC: jogos, brincadeiras e atividades corporais diversas." },
+  { theme: "Letramento digital", text: "O letramento digital inclui:", options: ["Uso irrestrito de telas", "Competências para usar, criar e criticar mídias", "Proibir internet", "Somente jogos", "Redes sociais"], answer: 1, comment: "BNCC: ética digital, segurança e produção de conteúdo." },
+  { theme: "Pedagogia hospitalar", text: "Na pedagogia hospitalar, o pedagogo atua:", options: ["Como médico", "Garantindo o direito à educação durante internação", "Somente brincadeiras", "Proibindo estudo", "Com punição"], answer: 1, comment: "Resolução CFE 2/2000: continuidade pedagógica no hospital." },
+  { theme: "Educação do campo", text: "A pedagogia da alternância alterna:", options: ["Escola e casa", "Tempo na escola e na comunidade/rurais", "Dia e noite", "Cidades", "Férias"], answer: 1, comment: "Respeita ritmo agrícola. Une teoria e prática no campo." },
+  { theme: "Práticas de AEE", text: "O AEE oferece recursos como:", options: ["Braille, LIBRAS, tecnologia assistiva", "Apenas remédio", "Isolamento", "Proibição de estudo", "Castigo"], answer: 0, comment: "Garante acessibilidade. Professor especializado e recursos específicos." },
+  { theme: "Concepções de aprendizagem", text: "Para Piaget, a aprendizagem ocorre por:", options: ["Reforço externo", "Assimilação e acomodação", "Memorização", "Punição", "Imitação"], answer: 1, comment: "Construtivismo: equilíbrio cognitivo. Estruturas mentais se transformam." },
+  { theme: "Concepções de desenvolvimento", text: "Wallasch destaca o desenvolvimento como:", options: ["Linear", "Multidirecional, com avanços e retrocessos", "Apenas motor", "Igual para todos", "Parado"], answer: 1, comment: "Desenvolvimento não linear. Respeita ritmos e contextos." },
+  { theme: "Práticas para adolescentes", text: "Com adolescentes, é eficaz:", options: ["Autoritarismo", "Projetos de vida, protagonismo e escuta", "Silêncio", "Provas diárias", "Expulsão"], answer: 1, comment: "BNCC EM: juventudes, projetos e participação. Respeito à fase." },
+  { theme: "Práticas para EJA", text: "Na EJA, o currículo deve ser:", options: ["Igual ao regular", "Flexível, com temas geradores e contextualizado", "Somente alfabetização", "Noturno", "Com reprovação"], answer: 1, comment: "Resolução CNE: respeita saberes prévios. Temas da vida adulta." },
+  { theme: "Práticas para idosos", text: "Na educação de idosos, valoriza-se:", options: ["Memorização", "Experiência de vida, socialização e autonomia", "Provas", "Competição", "Isolamento"], answer: 1, comment: "Educação ao longo da vida. Respeito à história pessoal." },
+  { theme: "Movimentos sociais e educação", text: "Movimentos como MST defendem:", options: ["Escolas privadas", "Educação do campo com agroecologia e cidadania", "Urbanização forçada", "Fechamento de escolas", "Trabalho infantil"], answer: 1, comment: "Pedagogia da terra. Une luta pela terra e educação." },
+  { theme: "Relação ensino-aprendizagem", text: "Dificuldades de escolarização podem decorrer de:", options: ["Falta de inteligência", "Fatores pedagógicos, sociais e familiares", "Preguiça", "Castigo", "Expulsão"], answer: 1, comment: "Abordagem sistêmica. Não é déficit individual, mas contexto." },
+  { theme: "Planejamento na EI", text: "O planejamento na EI é:", options: ["Rígido", "Flexível, com intencionalidade e escuta", "Anual", "Sem registro", "Com provas"], answer: 1, comment: "BNCC: planejamento como processo. Observação guia ações." },
+  { theme: "Organização do trabalho pedagógico", text: "O trabalho pedagógico exige:", options: ["Isolamento", "Colaboração, formação continuada e reflexão", "Competição", "Hierarquia", "Silêncio"], answer: 1, comment: "DCN: atuação em rede. Professor reflexivo e colaborativo." },
+  { theme: "Currículo e cultura", text: "O currículo deve incluir:", options: ["Apenas cultura europeia", "Culturas locais, afro-brasileira e indígena", "Somente português", "Religião única", "Exclusão"], answer: 1, comment: "Lei 10.639/11.678: obrigatória. Combate racismo e valoriza diversidade." },
+  { theme: "Práticas avaliativas", text: "A avaliação deve ser:", options: ["Punitiva", "Formativa, contínua e diversificada", "Anual", "Com reprovação na EI", "Somente provas"], answer: 1, comment: "BNCC: acompanhamento do processo. Instrumentos variados." },
+  { theme: "Pedagogia crítica", text: "Paulo Freire propõe a pedagogia:", options: ["Bancária", "Da libertação, com conscientização", "Tradicional", "Behaviorista", "Neutro"], answer: 1, comment: "Leitura do mundo precede a palavra. Educação como prática da liberdade." },
+  { theme: "Metodologias ativas", text: "Exemplo de metodologia ativa:", options: ["Aula expositiva", "Sala de aula invertida, PBL, gamificação", "Ditado", "Cópia", "Memorização"], answer: 1, comment: "Protagonismo do aluno. Alinha com competências da BNCC." },
+  { theme: "Formação de leitores", text: "Para formar leitores, é essencial:", options: ["Proibir HQ", "Acesso a acervos, mediação e tempo para ler", "Somente livros didáticos", "Leitura obrigatória", "Silêncio"], answer: 1, comment: "PNLD Literário: diversidade de gêneros. Mediação é chave." },
+  { theme: "Ensino de geografia", text: "Geografia na EI explora:", options: ["Mapas complexos", "Lugar, paisagem, relações com o espaço", "Somente capitais", "Climas", "Fronteiras"], answer: 1, comment: "BNCC: noções espaciais a partir do vivido. 'Minha rua, minha cidade'." },
+  { theme: "Ensino de história na EI", text: "História na EI trabalha com:", options: ["Guerras", "Memória, tempo e identidade", "Somente datas", "Presidentes", "Mapas"], answer: 1, comment: "BNCC: álbum de família, calendário, tradições. Construção do eu." },
+  { theme: "Ludicidade", text: "O lúdico na educação é:", options: ["Perda de tempo", "Estratégia pedagógica para engajamento e aprendizagem", "Opcional", "Proibido", "Somente recreio"], answer: 1, comment: "Vygotsky, Piaget: brincadeira como zona de desenvolvimento." },
+  { theme: "Práticas inclusivas", text: "Para incluir aluno com deficiência, o professor deve:", options: ["Ignorar", "Adaptar materiais, metodologias e avaliação", "Isolar", "Expulsar", "Proibir participação"], answer: 1, comment: "Desenho Universal para Aprendizagem (DUA). Acessibilidade pedagógica." },
+  { theme: "Gestão de sala de aula", text: "A gestão de sala exige:", options: ["Autoritarismo", "Regras combinadas, escuta e mediação de conflitos", "Gritos", "Castigo físico", "Ignorar"], answer: 1, comment: "Clima positivo. Regras construídas coletivamente." },
+  { theme: "Proposta de intervenção", text: "Uma proposta de intervenção pedagógica deve incluir:", options: ["Apenas objetivo", "Diagnóstico, objetivos, ações, recursos e avaliação", "Somente data", "Nome do diretor", "Faltas"], answer: 1, comment: "Estrutura lógica. Base para projetos eficazes." },
+  { theme: "Educação em direitos humanos", text: "Ensinar DH na escola desenvolve:", options: ["Obediência cega", "Empatia, respeito e cidadania ativa", "Medo", "Silêncio", "Submissão"], answer: 1, comment: "Competência 9 BNCC. Prepara para sociedade democrática." },
+  { theme: "Práticas de alfabetização", text: "Método fônico é:", options: ["Único caminho", "Uma estratégia entre outras (sócio-interacionista, construtivista)", "Proibido", "Obrigatório", "Inútil"], answer: 1, comment: "BNCC: ecletismo metodológico. Nenhum método é universal." },
+  { theme: "Letramento matemático", text: "Letramento matemático inclui:", options: ["Memorizar fórmulas", "Resolver problemas reais, interpretar dados", "Somente cálculo", "Provas", "Castigo"], answer: 1, comment: "BNCC: matemática como ferramenta para a vida. Contextos significativos." },
+  { theme: "Práticas de leitura", text: "A leitura compartilhada na EI promove:", options: ["Silêncio", "Interação, previsão, diálogo sobre o texto", "Cópia", "Prova", "Memorização"], answer: 1, comment: "Mediação adulta. Desenvolve compreensão e prazer." },
+  { theme: "Ensino de artes visuais", text: "Artes visuais na EI exploram:", options: ["Cópia", "Materiais, técnicas, expressão e cultura visual", "Concursos", "Notas", "Críticas"], answer: 1, comment: "BNCC: processo criativo. Valoriza produção e apreciação." },
+  { theme: "Educação física inclusiva", text: "Na EF inclusiva, adapta-se:", options: ["Regras rígidas", "Jogos, materiais e papéis para todos participarem", "Exclusão", "Competição", "Isolamento"], answer: 1, comment: "Todos jogam. Adaptações garantem participação significativa." },
+  { theme: "Práticas de escrita", text: "A produção textual na EI começa com:", options: ["Redação formal", "Rabiscos, desenhos, hipóteses de escrita", "Cópia", "Ditado", "Prova"], answer: 1, comment: "Emília Ferreiro: níveis de escrita. Respeita hipóteses infantis." },
+  { theme: "Organização escolar", text: "O regimento escolar define:", options: ["Apenas horários", "Normas de convivência, organização e funcionamento", "Salários", "Férias", "Faltas"], answer: 1, comment: "Documento oficial. Base para convivência democrática." },
+  { theme: "Práticas de mediação", text: "O professor mediador:", options: ["Transmite conteúdo", "Facilita, provoca, escuta e orienta a aprendizagem", "Controla", "Pune", "Ignora"], answer: 1, comment: "Papel contemporâneo. Alinha com Vygotsky e práticas ativas." },
+  { theme: "Projetos integradores", text: "Projetos integradores articulam:", options: ["Disciplinas isoladas", "Áreas do conhecimento em torno de um tema", "Provas", "Faltas", "Notas"], answer: 1, comment: "BNCC: currículo em rede. Ex.: 'Sustentabilidade na escola'." },
+  { theme: "Formação de professores", text: "A base comum nacional da formação docente inclui:", options: ["Apenas estágio", "Conhecimentos pedagógicos, específicos e prática", "Somente teoria", "EAD total", "Sem estágio"], answer: 1, comment: "Resolução CNE/CP 2/2019: formação integral. Une saber e fazer." },
+  { theme: "Práticas de pesquisa na escola", text: "A pesquisa na escola desenvolve:", options: ["Memorização", "Postura investigativa, curiosidade e produção de conhecimento", "Provas", "Cópia", "Silêncio"], answer: 1, comment: "BNCC: competência 3. Aluno como protagonista do saber." },
+  { theme: "Educação em tempo integral", text: "O tempo integral amplia:", options: ["Apenas aulas", "Oportunidades de aprendizagem, cultura e esporte", "Provas", "Faltas", "Punição"], answer: 1, comment: "Mais Vida: 7h diárias. Combate desigualdades." },
+  { theme: "Práticas de escuta na EI", text: "Escutar a criança na EI é:", options: ["Perda de tempo", "Direito e base para planejamento", "Opcional", "Proibido", "Ignorar"], answer: 1, comment: "BNCC: criança como sujeito de direitos. Suas falas orientam práticas." },
+  { theme: "Gestão de recursos", text: "O pedagogo na gestão utiliza o PDDE para:", options: ["Salário", "Melhoria da infraestrutura e materiais pedagógicos", "Festas", "Viagens", "Carros"], answer: 1, comment: "Programa Dinheiro Direto na Escola. Autonomia com prestação de contas." },
+  { theme: "Práticas de inclusão racial", text: "Para incluir história afro-brasileira, usa-se:", options: ["Proibir", "Literatura, música, datas e saberes africanos", "Silêncio", "Branco padrão", "Exclusão"], answer: 1, comment: "Lei 10.639: combate ao racismo. Valoriza contribuições negras." },
+  { theme: "Práticas de avaliação formativa", text: "A avaliação formativa usa:", options: ["Notas finais", "Observação, portfólio, feedback contínuo", "Prova surpresa", "Reprovação", "Punição"], answer: 1, comment: "Regula o processo. Professor e aluno ajustam rotas." },
+  { theme: "Práticas de autonomia", text: "Para promover autonomia, o professor:", options: ["Controla tudo", "Oferece escolhas, responsabilidade e reflexão", "Pune erros", "Ignora", "Proíbe"], answer: 1, comment: "BNCC: competência 1. Aluno como protagonista." },
+  { theme: "Práticas de colaboração", text: "A colaboração na escola inclui:", options: ["Competição", "Trabalho em rede, planejamento coletivo, troca de experiências", "Isolamento", "Hierarquia", "Silêncio"], answer: 1, comment: "DCN: professor colaborativo. Aprendizado entre pares." },
+  { theme: "Práticas de proposição", text: "O professor propositivo:", options: ["Segue só o livro", "Inova, cria, adapta e melhora práticas", "Repete", "Ignora", "Copia"], answer: 1, comment: "Perfil do egresso da Pedagogia. Agente de transformação." },
+  { theme: "Práticas de investigação", text: "A investigação na EI parte de:", options: ["Respostas prontas", "Perguntas das crianças e hipóteses", "Provas", "Memorização", "Silêncio"], answer: 1, comment: "BNCC: curiosidade como motor. Professor registra e provoca." },
+  { theme: "Práticas de documentação pedagógica", text: "Documentar experiências na EI serve para:", options: ["Burocracia", "Visibilizar aprendizagens, refletir e comunicar", "Provas", "Notas", "Punição"], answer: 1, comment: "Reggio Emilia: torna visível o aprendizado. Famílias e crianças participam." },
+  { theme: "Práticas de sustentabilidade", text: "A sustentabilidade na escola inclui:", options: ["Desperdício", "Horta, reciclagem, consumo consciente", "Lixo", "Plástico", "Desmatamento"], answer: 1, comment: "BNCC: competência 7. Educação ambiental crítica e prática." },
+  { theme: "Práticas de gênero", text: "Para combater machismo na escola, promove-se:", options: ["Estereótipos", "Igualdade, desconstrução de papéis e respeito", "Separação", "Silêncio", "Brinquedos por sexo"], answer: 1, comment: "BNCC: competência 9. Educação para igualdade de gênero." },
+  { theme: "Práticas de cidadania", text: "A cidadania se constrói na escola por meio de:", options: ["Obediência", "Participação, assembleias, direitos e deveres", "Silêncio", "Punição", "Medo"], answer: 1, comment: "BNCC: aluno como sujeito de direitos. Grêmio, conselhos." },
+  { theme: "Práticas de avaliação institucional", text: "A autoavaliação institucional envolve:", options: ["MEC apenas", "Comunidade escolar refletindo sobre conquistas e desafios", "Diretor sozinho", "Provas", "Notas"], answer: 1, comment: "Gestão democrática. Melhoria contínua da escola." },
+  { theme: "Práticas de formação em serviço", text: "A formação em serviço ocorre:", options: ["Na faculdade", "No cotidiano da escola, com reflexão sobre prática", "Férias", "Online apenas", "Nunca"], answer: 1, comment: "DCN: aprendizagem na ação. Comunidades de prática." },
+  { theme: "Práticas de liderança pedagógica", text: "O coordenador pedagógico exerce liderança ao:", options: ["Controlar", "Articular formação, acompanhar práticas e mediar conflitos", "Punir", "Ignorar", "Isolar"], answer: 1, comment: "Papel de formador. Apoia professores na melhoria do ensino." },
+  { theme: "Práticas de inclusão digital", text: "Inclusão digital exige:", options: ["Acesso apenas", "Acesso, formação e uso crítico das TICs", "Proibir", "Telas o dia todo", "Jogos apenas"], answer: 1, comment: "BNCC: competência 5. Combate à exclusão digital." },
+  { theme: "Práticas de memória escolar", text: "Preservar a memória da escola ajuda a:", options: ["Esquecer", "Construir identidade e sentido de pertencimento", "Provas", "Notas", "Punição"], answer: 1, comment: "Álbuns, murais, histórias. Fortalece vínculo com a escola." },
+  { theme: "Práticas de saúde na escola", text: "O PSE (Programa Saúde na Escola) promove:", options: ["Remédios", "Ações de prevenção, alimentação e saúde bucal", "Doença", "Falta", "Isolamento"], answer: 1, comment: "Intersetorial. Saúde e educação juntas." },
+  { theme: "Práticas de arte-educação", text: "A arte-educação desenvolve:", options: ["Técnica apenas", "Sensibilidade, criticidade e expressão", "Cópia", "Provas", "Notas"], answer: 1, comment: "BNCC: formação integral. Arte como conhecimento." },
+  { theme: "Práticas de ciência cidadã", text: "Ciências na escola podem envolver:", options: ["Fórmulas", "Projetos comunitários, como monitoramento de rios", "Provas", "Memorização", "Livros"], answer: 1, comment: "BNCC: ciência para a cidadania. Aluno como agente." },
+  { theme: "Práticas de educação financeira", text: "Educação financeira na escola ensina:", options: ["Riqueza", "Planejamento, consumo consciente e cidadania econômica", "Dívidas", "Jogos de azar", "Luxo"], answer: 1, comment: "BNCC EM: competência 7. Prepara para vida adulta." },
+  { theme: "Práticas de educação para a paz", text: "Educação para a paz promove:", options: ["Conflito", "Diálogo, resolução não violenta e empatia", "Guerra", "Medo", "Silêncio"], answer: 1, comment: "Cultura de paz. Essencial em tempos de polarização." },
+  { theme: "Práticas de avaliação em larga escala", text: "O resultado do SAEB serve para:", options: ["Reprovar alunos", "Diagnosticar a qualidade do ensino e orientar políticas", "Notas individuais", "Punição", "Fechar escolas"], answer: 1, comment: "Indicadores educacionais. Não avalia aluno, mas sistema." },
+  { theme: "Práticas de estágio supervisionado", text: "O estágio na formação de pedagogos é:", options: ["Opcional", "Obrigatório, com regência e reflexão", "Somente observação", "Pago", "Sem orientador"], answer: 1, comment: "Resolução CNE/CP 2/2015: mínimo 400h. Une teoria e prática." },
+  { theme: "Práticas de pesquisa-ação", text: "A pesquisa-ação na escola é:", options: ["Acadêmica apenas", "Cíclica, com professores investigando sua prática", "Provas", "Livros", "Notas"], answer: 1, comment: "Thiollent: melhora a prática. Professor-pesquisador." },
+  { theme: "Práticas de educação patrimonial", text: "Educação patrimonial valoriza:", options: ["Demolição", "Bens culturais, memória e identidade local", "Concreto", "Shopping", "Carros"], answer: 1, comment: "IPHAN: escola como espaço de preservação cultural." },
+  { theme: "Práticas de educação em museus", text: "Museus são espaços:", options: ["Fechados", "Não formais de educação, com mediação pedagógica", "Somente exposições", "Proibidos", "Caros"], answer: 1, comment: "Pedagogia museal. Aprendizado por objetos e narrativas." },
+  { theme: "Práticas de conclusão", text: "O perfil do pedagogo inclui ser:", options: ["Técnico", "Ético, crítico, colaborativo e propositivo", "Neutro", "Isolado", "Submisso"], answer: 1, comment: "DCN Pedagogia: compromisso com justiça social e democracia." }
+];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const total = questions.length;
+
+    function loadQuestion() {
+      if (currentQuestion >= total) {
+        showResult();
+        return;
+      }
+      const q = questions[currentQuestion];
+      const container = document.getElementById("questionContainer");
+      const progress = (currentQuestion / total) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
+
+      container.innerHTML = `
+        <div class="question-number">Questão ${currentQuestion + 1} – ${q.theme}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn" id="nextBtn" disabled onclick="nextQuestion()">Próxima Questão</button>
+      `;
+
+      const optionsDiv = document.getElementById("options");
+      q.options.forEach((opt, i) => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = opt;
+        div.onclick = () => selectOption(i, div);
+        optionsDiv.appendChild(div);
+      });
+    }
+
+    function selectOption(selected, element) {
+      const options = document.querySelectorAll(".option");
+      options.forEach(opt => opt.classList.remove("selected"));
+      element.classList.add("selected");
+
+      const q = questions[currentQuestion];
+      const feedback = document.getElementById("feedback");
+      const nextBtn = document.getElementById("nextBtn");
+
+      if (selected === q.answer) {
+        score++;
+        element.classList.add("correct");
+        feedback.className = "feedback correct show";
+        feedback.innerHTML = `<strong>Correto!</strong><br>${q.comment}`;
+      } else {
+        element.classList.add("wrong");
+        options[q.answer].classList.add("correct");
+        feedback.className = "feedback wrong show";
+        feedback.innerHTML = `<strong>Errado.</strong><br>${q.comment}`;
+      }
+      nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      loadQuestion();
+    }
+
+    function showResult() {
+      document.getElementById("questionContainer").style.display = "none";
+      document.getElementById("resultScreen").classList.add("show");
+      const percent = Math.round((score / total) * 100);
+      document.getElementById("finalScore").innerHTML = `Você acertou <strong>${score}</strong> de ${total} questões!<br><span style="font-size:1.5rem">${percent}% de acertos</span>`;
+    }
+
+    // Iniciar
+    loadQuestion();
+  </script>
+</body>
+</html>
